@@ -1,0 +1,25 @@
+{
+  "name": "pg-validate",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",  
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "dependencies": {},
+    
+   
+    "author": "Yaniv Kessler", 
+  
+  
+  "bugs": {
+    "url": "https://github.com/kessler/pg-validate/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kessler/pg-validate"
+  },
+  "homepage": "https://github.com/kessler/pg-validate",
+    
+  "license": "MIT"
+}
