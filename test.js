@@ -1,5 +1,6 @@
 var expect = require('chai').expect
 var types = require('./types')
+var validate = require('./index.js')
 var _ = require('lodash')
 
 describe('pg-validate', function() {
@@ -53,8 +54,8 @@ describe('pg-validate', function() {
 		})
 	})
 
-	describe.only('Char type', function () {
-		decribe('throws exception in constructor when using invalid length', function () {
+	describe('Char type', function () {
+		describe('throws exception in constructor when using invalid length', function () {
 			it('type', function () {
 				expect(function () {
 					new types.Char('12312323')
@@ -70,114 +71,45 @@ describe('pg-validate', function() {
 
 		it('isValidValid() returns true for valid values', function () {
 			var c = new types.Char(1)
-			expect(i.isValidValue('a')).to.be.true
+			expect(c.isValidValue('a')).to.be.true
 		})
 
 		it('isValidValid() returns false for invalid values', function () {
-			var i = new types.Integer(1)
-			expect(i.isValidValue('aa')).to.be.false
+			var c = new types.Char(1)
+			expect(c.isValidValue('aa')).to.be.false
 		})
+	})
 
+	describe('validate object', function () {
+		
+		it('returns an array with validation errors if it finds any', function () {
+			var errors = validate.object({
+				foo: '123123',
+				bar: 123
+			}, metadata)
+
+			expect(errors).to.have.length(3)
+
+			expect(errors).to.contain({ field: 'foo', error: validate.ERRORS.INVALID_VALUE })
+			expect(errors).to.contain({ field: 'bar', error: validate.ERRORS.INVALID_VALUE })
+			expect(errors).to.contain({ field: 'created', error: validate.ERRORS.MISSING_REQUIRED_FIELD })
+		})
 	})
 })
 
-var t = {
-	suspicious: {
+// exampe of a metadata object
+var metadata = {
+	foo: {
 		type: 'int4',
 		length: 32,
 		required: true
 	},
-	low: {
-		type: 'int4',
-		length: 32,
-		required: true
-	},
-	medium: {
-		type: 'int4',
-		length: 32,
-		required: true
-	},
-	high: {
-		type: 'int4',
-		length: 32,
-		required: true
-	},
-	detected: {
-		type: 'int4',
-		length: 32,
-		required: true
-	},
-	scanned: {
-		type: 'int4',
-		length: 32,
-		required: true
-	},
-	eventname: {
+	bar: {
 		type: 'varchar',
 		length: 30,
 		required: true
 	},
-	osversion: {
-		type: 'varchar',
-		length: 20,
-		required: true
-	},
-	continent: {
-		type: 'varchar',
-		length: 2,
-		required: true
-	},
-	type: {
-		type: 'varchar',
-		length: 50,
-		required: true
-	},
-	eventversion: {
-		type: 'varchar',
-		length: 20,
-		required: true
-	},
-	status: {
-		type: 'varchar',
-		length: 12,
-		required: true
-	},
-	ip: {
-		type: 'varchar',
-		length: 80,
-		required: true
-	},
-	version: {
-		type: 'varchar',
-		length: 12,
-		required: true
-	},
-	ruserid: {
-		type: 'varchar',
-		length: 40,
-		required: true
-	},
-	userid: {
-		type: 'varchar',
-		length: 40,
-		required: true
-	},
-	geo: {
-		type: 'varchar',
-		length: 2,
-		required: true
-	},
-	id: {
-		type: 'varchar',
-		length: 100,
-		required: true
-	},
 	created: {
-		type: 'timestamp',
-		length: null,
-		required: true
-	},
-	client_created: {
 		type: 'timestamp',
 		length: null,
 		required: true

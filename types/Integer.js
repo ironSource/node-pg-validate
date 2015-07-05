@@ -31,11 +31,3 @@ var INT_LENGTH = {
 }
 
 var VALID_LENGTHS = Object.keys(INT_LENGTH)
-
-var NUMERIC_TYPES = {
-	int: '32bit',
-	int4: '32bit',
-	integer: '32bit',
-	int2: '16bit',
-	smallint: '16bit'
-}
