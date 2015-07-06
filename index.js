@@ -62,5 +62,7 @@ staticValidators.int2 = new types.Integer('16bit')
 staticValidators.smallint = staticValidators.int2
 staticValidators.int4 = new types.Integer('32bit')
 staticValidators.integer = staticValidators.int4
+staticValidators.int8 = new types.Integer('64bit')
+staticValidators.bigint = staticValidators.int8
 
 module.exports.validatorFor = validatorFor

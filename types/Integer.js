@@ -1,5 +1,6 @@
 var SqlType = require('../lib/SqlType.js')
 var inherits = require('util').inherits
+var BigNumber = require('big-number').n
 
 module.exports = Integer
 
@@ -16,6 +17,14 @@ function Integer(length) {
 }
 
 Integer.prototype.isValidValue = function(value) {
+	if (this._length.bigNumber) {
+		// BigNumber accepts empty strings, we don't
+		if (value === '') return false
+
+		var b = BigNumber(value)
+		return b.toString() !== "Invalid Number" && b.lte(this._length.max) && b.gte(this._length.min)
+	}
+
 	return typeof(value) === 'number' && value <= this._length.max && value >= this._length.min
 }
 
@@ -27,6 +36,11 @@ var INT_LENGTH = {
 	'32bit': {
 		min: Math.pow(2, 31) * -1,
 		max: Math.pow(2, 31) - 1
+	},
+	'64bit': {
+		bigNumber: true,
+		min: BigNumber(2).pow(63).mult(-1), // -(2^63)
+		max: BigNumber(2).pow(63).minus(1)  // 2^63 - 1
 	}
 }
 

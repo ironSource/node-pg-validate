@@ -52,6 +52,22 @@ describe('pg-validate', function() {
 			// we are on signed 32bit so 2^32 should not be valid
 			expect(i.isValidValue(Math.pow(2, 32))).to.be.false
 		})
+
+		it('isValidValid() returns true for valid 64bit values', function () {
+			var i = new types.Integer('64bit')
+			expect(i.isValidValue('-9223372036854775808')).to.be.true
+			expect(i.isValidValue('9223372036854775807')).to.be.true
+			expect(i.isValidValue(Math.pow(2, 32))).to.be.true
+			expect(i.isValidValue(Math.pow(2, 53))).to.be.true
+		})
+
+		it('isValidValid() returns false for invalid 64bit values', function () {
+			var i = new types.Integer('64bit')
+			expect(i.isValidValue('-9223372036854775809')).to.be.false
+			expect(i.isValidValue('9223372036854775808')).to.be.false
+			expect(i.isValidValue('xa2')).to.be.false
+			expect(i.isValidValue('')).to.be.false
+		})
 	})
 
 	describe('Char type', function () {
