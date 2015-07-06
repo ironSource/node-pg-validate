@@ -53,6 +53,20 @@ describe('pg-validate', function() {
 			expect(i.isValidValue(Math.pow(2, 32))).to.be.false
 		})
 
+		it('isValidValid() returns true for valid serial values', function () {
+			var i = new types.Integer('serial')
+			expect(i.isValidValue(1)).to.be.true
+			expect(i.isValidValue(2147483647)).to.be.true
+		})
+
+		it('isValidValid() returns false for invalid serial values', function () {
+			var i = new types.Integer('serial')
+			expect(i.isValidValue(0)).to.be.false
+			expect(i.isValidValue(-1)).to.be.false
+			expect(i.isValidValue(2147483648)).to.be.false
+			expect(i.isValidValue('')).to.be.false
+		})
+
 		it('isValidValid() returns true for valid 64bit values', function () {
 			var i = new types.Integer('64bit')
 			expect(i.isValidValue('-9223372036854775808')).to.be.true
@@ -64,6 +78,24 @@ describe('pg-validate', function() {
 		it('isValidValid() returns false for invalid 64bit values', function () {
 			var i = new types.Integer('64bit')
 			expect(i.isValidValue('-9223372036854775809')).to.be.false
+			expect(i.isValidValue('9223372036854775808')).to.be.false
+			expect(i.isValidValue('xa2')).to.be.false
+			expect(i.isValidValue('')).to.be.false
+		})
+
+		it('isValidValid() returns true for valid bigserial values', function () {
+			var i = new types.Integer('bigserial')
+			expect(i.isValidValue('1')).to.be.true
+			expect(i.isValidValue(1)).to.be.true
+			expect(i.isValidValue('9223372036854775807')).to.be.true
+			expect(i.isValidValue(Math.pow(2, 32))).to.be.true
+			expect(i.isValidValue(Math.pow(2, 53))).to.be.true
+		})
+
+		it('isValidValid() returns false for invalid bigserial values', function () {
+			var i = new types.Integer('bigserial')
+			expect(i.isValidValue(0)).to.be.false
+			expect(i.isValidValue(-1)).to.be.false
 			expect(i.isValidValue('9223372036854775808')).to.be.false
 			expect(i.isValidValue('xa2')).to.be.false
 			expect(i.isValidValue('')).to.be.false

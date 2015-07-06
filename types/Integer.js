@@ -41,6 +41,15 @@ var INT_LENGTH = {
 		bigNumber: true,
 		min: BigNumber(2).pow(63).mult(-1), // -(2^63)
 		max: BigNumber(2).pow(63).minus(1)  // 2^63 - 1
+	},
+	'serial': {    // unsigned 32bit, but starting at 1
+		min: 1,
+		max: Math.pow(2, 31) - 1
+	},
+	'bigserial': { // unsigned 64bit, but starting at 1
+		bigNumber: true,
+		min: 1,
+		max: BigNumber(2).pow(63).minus(1)
 	}
 }
 

@@ -65,4 +65,7 @@ staticValidators.integer = staticValidators.int4
 staticValidators.int8 = new types.Integer('64bit')
 staticValidators.bigint = staticValidators.int8
 
+staticValidators.serial = new types.Integer('serial')
+staticValidators.bigserial = new types.Integer('bigserial')
+
 module.exports.validatorFor = validatorFor
