@@ -5,7 +5,7 @@ module.exports = Integer
 
 inherits(Integer, SqlType)
 function Integer(length) {
-	if ( !(this instanceof Integer) ) return new Integer()
+	if ( !(this instanceof Integer) ) return new Integer(length)
 	SqlType.call(this)
 
 	if (VALID_LENGTHS.indexOf(length) === -1) {
