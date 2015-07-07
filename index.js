@@ -1,14 +1,24 @@
 var _ = require('lodash')
 var types = require('./types')
+var introspect = require('introspect')
 
-var ERRORS = module.exports.ERRORS = {
+var ERRORS = exports.ERRORS = {
 	MISSING_REQUIRED_FIELD: 'missing required field',
 	INVALID_VALUE: 'invalid value'
 }
 
-module.exports.object = function (obj, metadata) {
+var PLATFORM = {
+	POSTGRES: 1,
+	REDSHIFT: 2
+}
 
+Object.keys(PLATFORM).forEach(function(k){
+	exports[k] = PLATFORM[k]
+})
+
+exports.object = function (obj, metadata, opts) {
 	var errors = []
+	var platform = opts && opts.platform
 
 	_.forEach(metadata, function (fieldMetadata, field) {
 
@@ -26,7 +36,7 @@ module.exports.object = function (obj, metadata) {
 			return
 		}
 
-		var validator = validatorFor(fieldMetadata)
+		var validator = validatorFor(fieldMetadata, platform)
 		
 		if (!validator.isValidValue(value)) {
 			errors.push({
@@ -39,15 +49,22 @@ module.exports.object = function (obj, metadata) {
 	return errors
 }
 
-function validatorFor (fieldMetadata) {
+function validatorFor (fieldMetadata, platform) {
+	if (!platform) platform = PLATFORM.POSTGRES
+
 	var type = fieldMetadata.type
+	var validators = platformValidators(platform)
 
-	if (type in staticValidators) {
-		return staticValidators[type]
-	}
+	if (type in validators) {
+		var validator = validators[type]
 
-	if (type === 'varchar' || type === 'char') {
-		return new types.Char(fieldMetadata.length)
+		if (typeof validator === 'function') {
+			// Has user-specified type options(s)
+			var options = _.values(_.pick(fieldMetadata, introspect(validator)))
+			validator = validator.apply(null, options)
+		}
+
+		return validator
 	}
 
 	throw new Error('missing validator for type ' + type)
@@ -57,15 +74,57 @@ function validatorFor (fieldMetadata) {
 	these are validators that can be reused
 */
 var staticValidators = {}
+var platformAgnostic = {
+	boolean:   new types.Boolean(),
+	char:      types.Char,
+	int2:      new types.Integer('16bit'),
+	int4:      new types.Integer('32bit'),
+	int8:      new types.Integer('64bit'),
+	serial:    new types.Integer('serial'),
+	bigserial: new types.Integer('bigserial')
+}
 
-staticValidators.int2 = new types.Integer('16bit')
-staticValidators.smallint = staticValidators.int2
-staticValidators.int4 = new types.Integer('32bit')
-staticValidators.integer = staticValidators.int4
-staticValidators.int8 = new types.Integer('64bit')
-staticValidators.bigint = staticValidators.int8
+var ALIAS = {
+	smallint: 'int2',
+	integer:  'int4',
+	bigint:   'int8',
+	varchar:  'char',
+	numeric:  'decimal',
+	float4:   'real',
+	float8:   'double_precision',
+}
 
-staticValidators.serial = new types.Integer('serial')
-staticValidators.bigserial = new types.Integer('bigserial')
+function platformValidators(platform) {
+	if (staticValidators[platform]) return staticValidators[platform]
 
-module.exports.validatorFor = validatorFor
+	var validators = staticValidators[platform] = _.assign({}, platformAgnostic)
+
+	if (platform === PLATFORM.POSTGRES) {
+		var Decimal = validators.decimal = types.postgres.Decimal
+	} else if (platform === PLATFORM.REDSHIFT) {
+		Decimal = validators.decimal = types.redshift.Decimal
+	} else {
+		throw new Error('Invalid platform: ' + platform)
+	}
+
+	// TODO: maximum precision is *at least* 6.
+	validators.real = new Decimal(6, 6)
+
+	// TODO: maximum precision is *at least* 15.
+	validators.double_precision = new Decimal(15, 15)
+
+	if (platform === PLATFORM.POSTGRES) {
+		validators.float = types.postgres.Float.factory(validators)
+	} else {
+		validators.float = validators.double_precision
+	}
+
+	for(var alias in ALIAS) {
+		validators[alias] = validators[ALIAS[alias]]
+	}
+
+	staticValidators[platform] = validators
+	return validators
+}
+
+exports.validatorFor = validatorFor

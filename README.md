@@ -10,7 +10,7 @@ var validate = require('pg-validate')
 var errors = validate.object({
     foo: 1280000,
     bar: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-}, metadata)
+}, metadata, { platform: validate.REDSHIFT })
 ```
 
 ## Supported Types
