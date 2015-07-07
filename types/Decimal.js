@@ -14,7 +14,7 @@ function Decimal(precision, scale) {
 		this.assertValidPrecision(precision)
 		this.assertValidScale(scale, precision)
 	} else if (scale != null) {
-		throw new Error('cannot specify scale without precision')
+		throw new Error('cannot declare scale without precision')
 	} else {
 		precision = this.DEFAULT_PRECISION
 		scale = this.DEFAULT_SCALE
@@ -26,24 +26,31 @@ function Decimal(precision, scale) {
 
 Decimal.prototype.isValidValue = function(value) {
 	if (typeof value === 'number') {
-		var s = value.toFixed()
-	} else {
+		var digits = Math.min(20, this._scale)
+		  , parts = value.toFixed(digits).split('.')
+		  , left = parts[0].replace(/^-/, '')
+		  , right = (parts[1] || '').replace(/0+$/, '')
+	} else if (typeof value === 'string') {
 		// BigNumber accepts empty strings, we don't
 		if (value === '') return false
 
-		s = BigNumber(value).toString()
-		if (s === "Invalid Number") return false
+		parts = value.split('.')
+	  left = BigNumber(parts[0]).toString().replace(/^-/, '')
+	  right = parts.length > 1 ? BigNumber(parts[1]).toString() : ''
+
+	  if (left === "Invalid Number" || right === "Invalid Number") return false
+	} else {
+		return false
 	}
 
-	// Coerce scale, then count digits
-	var parts = s.split('.')
-	var weight = parts[0].length
-	var scale = Math.min((parts[1] || '').length, this._scale)
-	var precision = weight + scale
-
+	var weight = left.length
 	if (this.MAX_WEIGHT != null && weight > this.MAX_WEIGHT) {
 		return false
 	}
+
+	// Coerce scale, then count digits
+	var scale = Math.min(right.length, this._scale)
+	var precision = weight + scale
 
 	return precision <= this._precision
 }
@@ -63,7 +70,7 @@ Decimal.prototype.assertValidScale = function(scale, precision) {
 }
 
 Decimal.prototype.assertValidPrecision = function(precision) {
-	if (precision < 0) {
+	if (precision <= 0) {
 		throw new Error('precision must be positive')
 	}
 

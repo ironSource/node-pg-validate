@@ -10,3 +10,5 @@ exports.postgres = {
 exports.redshift = {
 	Decimal: require('./redshift/Decimal'),
 }
+
+exports.Decimal = exports.postgres.Decimal
