@@ -1,34 +1,34 @@
 var SqlType = require('../lib/SqlType.js')
 var inherits = require('util').inherits
-var BigNumber = require('big-number').n
+var BigNumber = require('bignumber.js').another({ ERRORS: false })
 
 module.exports = Integer
 
 inherits(Integer, SqlType)
-function Integer(length) {
-	if ( !(this instanceof Integer) ) return new Integer(length)
+function Integer(range) {
+	if ( !(this instanceof Integer) ) return new Integer(range)
 	SqlType.call(this)
 
-	if (VALID_LENGTHS.indexOf(length) === -1) {
-		throw new Error('invalid or unsupported length for integer')
+	if (VALID_RANGES.indexOf(range) === -1) {
+		throw new Error('invalid or unsupported range')
 	}
-	
-	this._length = INT_LENGTH[length]
+
+	this._range = Integer.RANGE[range]
 }
 
 Integer.prototype.isValidValue = function(value) {
-	if (this._length.bigNumber) {
+	if (this._range.bigNumber) {
 		// BigNumber accepts empty strings, we don't
 		if (value === '') return false
 
-		var b = BigNumber(value)
-		return b.toString() !== "Invalid Number" && b.lte(this._length.max) && b.gte(this._length.min)
+		var b = new BigNumber(value)
+		return !b.isNaN() && b.lte(this._range.max) && b.gte(this._range.min)
 	}
 
-	return typeof(value) === 'number' && value <= this._length.max && value >= this._length.min
+	return typeof(value) === 'number' && value <= this._range.max && value >= this._range.min
 }
 
-var INT_LENGTH = {
+Integer.RANGE = {
 	'16bit': {
 		min: Math.pow(2, 15) * -1,
 		max: Math.pow(2, 15) - 1
@@ -39,18 +39,28 @@ var INT_LENGTH = {
 	},
 	'64bit': {
 		bigNumber: true,
-		min: BigNumber(2).pow(63).mult(-1), // -(2^63)
-		max: BigNumber(2).pow(63).minus(1)  // 2^63 - 1
+		min: (new BigNumber(2)).pow(63).times(-1), // -(2^63)
+		max: (new BigNumber(2)).pow(63).minus(1)  // 2^63 - 1
 	},
-	'serial': {    // unsigned 32bit, but starting at 1
+	'128bit': {
+		bigNumber: true,
+		min: (new BigNumber(2)).pow(127).times(-1),
+		max: (new BigNumber(2)).pow(127).minus(1)
+	},
+	'1024bit': {
+		bigNumber: true,
+		min: (new BigNumber(2)).pow(1023).times(-1),
+		max: (new BigNumber(2)).pow(1023).minus(1)
+	},
+	'serial': {
 		min: 1,
 		max: Math.pow(2, 31) - 1
 	},
-	'bigserial': { // unsigned 64bit, but starting at 1
+	'bigserial': {
 		bigNumber: true,
 		min: 1,
-		max: BigNumber(2).pow(63).minus(1)
+		max: (new BigNumber(2)).pow(63).minus(1)
 	}
 }
 
-var VALID_LENGTHS = Object.keys(INT_LENGTH)
+var VALID_RANGES = Object.keys(Integer.RANGE)

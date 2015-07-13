@@ -1,8 +1,8 @@
 var Decimal = require('../Decimal')
 var inherits = require('util').inherits
 
-function RSDecimal(precision, scale) {
-	if ( !(this instanceof RSDecimal) ) return new RSDecimal(precision, scale)
+function RSDecimal(precision, scale, range) {
+	if ( !(this instanceof RSDecimal) ) return new RSDecimal(precision, scale, range)
 
 	// Redshift supports numbers up to 128 bits.
 	this.MAX_PRECISION = 38
@@ -12,7 +12,7 @@ function RSDecimal(precision, scale) {
 	this.DEFAULT_PRECISION = 18
 	this.DEFAULT_SCALE = 18
 
-	Decimal.call(this, precision, scale)
+	Decimal.call(this, precision, scale, range)
 }
 
 inherits(RSDecimal, Decimal)

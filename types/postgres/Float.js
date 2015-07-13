@@ -11,7 +11,7 @@ exports.factory = function (validators) {
 			return validators.real
 
 		// float(25) to float(53) select double precision
-		if (binaryPrecision >= 25 && binaryPrecision <= 52)
+		if (binaryPrecision >= 25 && binaryPrecision <= 53)
 			return validators.double_precision
 
 		throw new Error('precision is out of range for float(p)')

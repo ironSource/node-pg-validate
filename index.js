@@ -107,11 +107,11 @@ function platformValidators(platform) {
 		throw new Error('Invalid platform: ' + platform)
 	}
 
-	// TODO: maximum precision is *at least* 6.
-	validators.real = new Decimal(6, 6)
+	// Inexact. Maximum precision is advisory and *at least* 6.
+	validators.real = new Decimal(null, null, '128bit')
 
-	// TODO: maximum precision is *at least* 15.
-	validators.double_precision = new Decimal(15, 15)
+	// Inexact. Maximum precision is advisory and *at least* 15.
+	validators.double_precision = new Decimal(null, null, '1024bit')
 
 	if (platform === PLATFORM.POSTGRES) {
 		validators.float = types.postgres.Float.factory(validators)

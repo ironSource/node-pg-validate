@@ -7,7 +7,7 @@
     "test": "mocha -R spec"
   },
   "dependencies": {
-    "big-number": "~0.3.1",
+    "bignumber.js": "~2.0.7",
     "introspect": "0.0.3",
     "lodash": "^3.9.3"
   },
@@ -23,6 +23,7 @@
   "license": "MIT",
   "devDependencies": {
     "chai": "^3.0.0",
-    "mocha": "^2.2.5"
+    "mocha": "^2.2.5",
+    "pg": "~4.4.0"
   }
 }

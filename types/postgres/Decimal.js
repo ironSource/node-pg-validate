@@ -1,8 +1,8 @@
 var Decimal = require('../Decimal')
 var inherits = require('util').inherits
 
-function PGDecimal(precision, scale) {
-	if ( !(this instanceof PGDecimal) ) return new PGDecimal(precision, scale)
+function PGDecimal(precision, scale, range) {
+	if ( !(this instanceof PGDecimal) ) return new PGDecimal(precision, scale, range)
 
 	// Per PostgreSQL 9.4
 	this.MAX_SCALE = 16383
@@ -13,7 +13,7 @@ function PGDecimal(precision, scale) {
 	this.DEFAULT_PRECISION = this.MAX_PRECISION
 	this.DEFAULT_SCALE = this.MAX_SCALE
 
-	Decimal.call(this, precision, scale)
+	Decimal.call(this, precision, scale, range)
 }
 
 inherits(PGDecimal, Decimal)

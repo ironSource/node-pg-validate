@@ -1,9 +1,48 @@
 var expect = require('chai').expect
 var types = require('./types')
+var validatorFor = require('./').validatorFor
 var validate = require('./index.js')
 var _ = require('lodash')
+var pg = require('pg')
+var BigNumber = require('bignumber.js').another({ ERRORS: false })
+var dsn = process.env.PG_VALIDATE
 
 describe('pg-validate', function() {
+	var client, release
+
+	if (dsn) {
+		before(function(done){
+			pg.connect(dsn, function(err, _client, _release) {
+				if (err) return done(err)
+
+				client = _client
+				release = _release
+
+				done()
+			})
+		})
+
+		after(function() {
+			release && release()
+		})
+	}
+
+	function testType(type, value, done) {
+		client.query('SELECT $1::'+type+' AS res', [value], function(err, result) {      
+			if (err) return done(err)
+			else done(null, result.rows[0].res);
+		});
+	}
+
+	function describeWithDatabase(what, fn) {
+		if (dsn) describe(what, fn)
+		else describe.skip(what, fn)
+	}
+
+	function inexact(val, digits) {
+		var b = new BigNumber(val)
+		return b.toString(10).slice(0, digits + b.isNeg())
+	}
 
 	describe('Boolean type', function() {
 		var bool = new types.Boolean()
@@ -26,10 +65,10 @@ describe('pg-validate', function() {
 	})
 
 	describe('Integer type', function () {
-		it('throws exception in constructor when using invalid length', function () {
+		it('throws exception in constructor when using invalid range', function () {
 			expect(function () {
 				new types.Integer('12312323')
-			}).to.throw(Error, 'invalid or unsupported length for integer')
+			}).to.throw(Error, 'invalid or unsupported range')
 		})
 
 		it('isValidValue() returns true for valid 16bit values', function () {
@@ -99,6 +138,51 @@ describe('pg-validate', function() {
 			expect(i.isValidValue('9223372036854775808')).to.be.false
 			expect(i.isValidValue('xa2')).to.be.false
 			expect(i.isValidValue('')).to.be.false
+		})
+
+		var typeRanges = {
+			int2: '16bit',
+			int4: '32bit',
+			int8: '64bit'
+		}
+
+		Object.keys(typeRanges).forEach(function(type) {
+			var range = typeRanges[type]
+				, i = new types.Integer(range)
+				, min = new BigNumber(i._range.min)
+				, max = new BigNumber(i._range.max)
+
+			describeWithDatabase(type + ' range', function() {
+				it("matches the database's minimum value", function(done) {
+					testType(type, min.toString(10), function(err, val) {
+						expect(err).to.be.null
+						expect(''+val).to.equal(min.toString(10))
+						done()
+					})
+				})
+
+				it("less than minimum throws database error", function(done) {
+					testType(type, min.minus(1).toString(10), function(err, val) {
+						expect(err).to.be.an.instanceof(Error)
+						done()
+					})
+				})
+
+				it("matches the database's maximum value", function(done) {
+					testType(type, max.toString(10), function(err, val) {
+						expect(err).to.be.null
+						expect(''+val).to.equal(max.toString(10))
+						done()
+					})
+				})
+
+				it("more than maximum throws database error", function(done) {
+					testType(type, max.plus(1).toString(10), function(err, val) {
+						expect(err).to.be.an.instanceof(Error)
+						done()
+					})
+				})
+			})
 		})
 	})
 
@@ -241,6 +325,130 @@ describe('pg-validate', function() {
 				var d = new types.Decimal(2, 2)
 				expect(d.isValidValue('-123')).to.be.false
 				expect(d.isValidValue('-1.12')).to.be.false
+			})
+		})
+
+		describeWithDatabase('numeric with precision', function() {			
+			testPrecision([3,2], 2.22, 22.22, 2.22)
+			testPrecision([3,1], 2.22, 222.22, 2.2)
+			testPrecision([1,0], 2.0, 22.0, 2)
+			testPrecision([1,0], 2.2, 22.0, 2)
+			testPrecision([1,1], 0.2, 22.0, 0.2)
+
+			function testPrecision(args, valid, invalid, expected) {
+				valid = new BigNumber(valid)
+				invalid = new BigNumber(invalid)
+				expected = new BigNumber(expected)
+
+				var validNeg = valid.times(-1)
+					, invalidNeg = invalid.times(-1)
+					, expectedNeg = expected.times(-1)
+					, type = args ? 'numeric('+args.join(',')+')' : 'numeric'
+					, d = new types.Decimal(args[0], args[1])
+
+				describe(type, function() {
+					it("matches the database's precision (positive)", function(done) {
+						expect(d.isValidValue(valid.toString(10))).to.be.true
+						testType(type, valid.toString(10), function(err, val) {
+							expect(err).to.be.null
+							expect(''+val).to.equal(expected.toString(10))
+							done()
+						})
+					})
+
+					it("higher precision throws database error (positive)", function(done) {
+						expect(d.isValidValue(invalid.toString(10))).to.be.false
+						testType(type, invalid.toString(10), function(err, val) {
+							expect(err).to.be.an.instanceof(Error)
+							expect(val).to.be.undefined
+							done()
+						})
+					})
+
+					it("matches the database's precision (negative)", function(done) {
+						expect(d.isValidValue(validNeg.toString(10))).to.be.true
+						testType(type, validNeg.toString(10), function(err, val) {
+							expect(err).to.be.null
+							expect(''+val).to.equal(expectedNeg.toString(10))
+							done()
+						})
+					})
+
+					it("higher precision throws database error (negative)", function(done) {
+						expect(d.isValidValue(invalidNeg.toString(10))).to.be.false
+						testType(type, invalidNeg.toString(10), function(err, val) {
+							expect(err).to.be.an.instanceof(Error)
+							expect(val).to.be.undefined
+							done()
+						})
+					})
+				})
+			}
+		})
+	})
+
+	describeWithDatabase('Real type', function() {
+		var validator = validatorFor({type: 'float4'})
+		var range = types.Integer.RANGE['128bit']
+
+		it('accepts numbers up to 128bit with a precision of at least 6', function(done) {
+			var min = range.min.toString(10)
+			expect(validator.isValidValue(min)).to.be.true
+
+			testType('float4', min, function(err, val) {
+				expect(err).to.be.null
+				expect(inexact(val, 6)).to.equal(inexact(min, 6))
+				done()
+			})
+		})
+	})
+
+	describeWithDatabase('float(1) type', function() {
+		var validator = validatorFor({type: 'float4'})
+		var range = types.Integer.RANGE['128bit']
+
+		it('accepts numbers up to 128bit with a precision of at least 6', function(done) {
+			var min = range.min.toString(10)
+			expect(validator.isValidValue(min)).to.be.true
+
+			testType('float(1)', min, function(err, val) {
+				expect(err).to.be.null
+				expect(inexact(val, 6)).to.equal(inexact(min, 6))
+				done()
+			})
+		})
+	})
+
+	describeWithDatabase('Double precision type', function() {
+		var validator = validatorFor({type: 'float8'})
+		var range = types.Integer.RANGE['1024bit']
+
+		it('accepts numbers up to 1024bit with a precision of at least 15', function(done) {
+			var max = range.max.toString(10)
+			expect(validator.isValidValue(max)).to.be.true
+
+			testType('float8', max, function(err, val) {
+				expect(err).to.be.null
+
+				// Truncate to 14 to ignore system rounding differences
+				expect(inexact(val, 14)).to.equal(inexact(max, 14))
+				done()
+			})
+		})
+	})
+
+	describeWithDatabase('float(53) type', function() {
+		var validator = validatorFor({type: 'float8'})
+		var range = types.Integer.RANGE['1024bit']
+
+		it('accepts numbers up to 1024bit with a precision of at least 15', function(done) {
+			var max = range.max.toString(10)
+			expect(validator.isValidValue(max)).to.be.true
+
+			testType('float(53)', max, function(err, val) {
+				expect(err).to.be.null
+				expect(inexact(val, 14)).to.equal(inexact(max, 14))
+				done()
 			})
 		})
 	})

@@ -1,12 +1,13 @@
 var SqlType = require('../lib/SqlType')
 var inherits = require('util').inherits
-var BigNumber = require('big-number').n
+var BigNumber = require('bignumber.js').another({ ERRORS: false })
+var Integer = require('./Integer')
 
 module.exports = Decimal
 inherits(Decimal, SqlType)
 
-function Decimal(precision, scale) {
-	if ( !(this instanceof Decimal) ) return new Decimal(precision, scale)
+function Decimal(precision, scale, range) {
+	if ( !(this instanceof Decimal) ) return new Decimal(precision, scale, range)
 	SqlType.call(this)
 
 	if (precision != null) {
@@ -20,30 +21,29 @@ function Decimal(precision, scale) {
 		scale = this.DEFAULT_SCALE
 	}
 
+	if (range != null) this._range = new Integer(range)
+
 	this._precision = precision
 	this._scale = scale
 }
 
 Decimal.prototype.isValidValue = function(value) {
-	if (typeof value === 'number') {
-		var digits = Math.min(20, this._scale)
-		  , parts = value.toFixed(digits).split('.')
-		  , left = parts[0].replace(/^-/, '')
-		  , right = (parts[1] || '').replace(/0+$/, '')
-	} else if (typeof value === 'string') {
-		// BigNumber accepts empty strings, we don't
-		if (value === '') return false
-
-		parts = value.split('.')
-	  left = BigNumber(parts[0]).toString().replace(/^-/, '')
-	  right = parts.length > 1 ? BigNumber(parts[1]).toString() : ''
-
-	  if (left === "Invalid Number" || right === "Invalid Number") return false
-	} else {
+	if (typeof value !== 'number' && typeof value !== 'string') {
 		return false
 	}
 
-	var weight = left.length
+	var b = new BigNumber(value)
+	if (b.isNaN()) return false
+
+	var parts = b.abs().toString(10).split('.')
+		, left = parts[0] === '0' ? '' : parts[0]
+		, right = parts[1] || ''
+		, weight = left.length
+
+	if (this._range != null && !this._range.isValidValue(value)) {
+		return false
+	}
+
 	if (this.MAX_WEIGHT != null && weight > this.MAX_WEIGHT) {
 		return false
 	}
