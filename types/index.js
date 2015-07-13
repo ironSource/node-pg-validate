@@ -8,6 +8,7 @@ exports.Date = require('./Date')
 exports.postgres = {
 	Decimal: require('./postgres/Decimal'),
 	Float: require('./postgres/Float'),
+	Text: require('./postgres/Text')
 }
 
 exports.redshift = {

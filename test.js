@@ -479,6 +479,28 @@ describe('pg-validate', function() {
 		})
 	})
 
+	describe('Text type', function () {
+		it('isValidValue() returns true for valid values', function () {
+			var c = new types.postgres.Text()
+			expect(c.isValidValue('a')).to.be.true
+		})
+
+		it('isValidValue() returns false for invalid values', function () {
+			var c = new types.postgres.Text()
+			expect(c.isValidValue(3)).to.be.false
+		})
+
+		it('is a type on PostgreSQL', function(){
+			var rv = validatorFor({type: 'text'}, validate.POSTGRES)
+			expect(rv).to.be.an.instanceof(types.postgres.Text)
+		})
+
+		it('is an alias of varchar on Redshift', function(){
+			var rv = validatorFor({type: 'text', length: 1}, validate.REDSHIFT)
+			expect(rv).to.be.an.instanceof(types.Char)
+		})
+	})
+
 	describe('Date type', function () {
 		it('isValidValue() returns true for valid values', function () {
 			var t = new types.Date(true)

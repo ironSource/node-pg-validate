@@ -37,7 +37,8 @@ var errors = validate.object({
 
 ### Char
 
-- `varchar` or `char`
+- `varchar` or `char` or `bpchar`
+- `text`: strings of any length on PostgreSQL, an alias of `varchar` on Redshift
 
 ### Timestamp
 

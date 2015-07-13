@@ -107,8 +107,10 @@ function platformValidators(platform) {
 
 	if (platform === PLATFORM.POSTGRES) {
 		var Decimal = validators.decimal = types.postgres.Decimal
+		validators.text = types.postgres.Text
 	} else if (platform === PLATFORM.REDSHIFT) {
 		Decimal = validators.decimal = types.redshift.Decimal
+		validators.text = types.Char
 	} else {
 		throw new Error('Invalid platform: ' + platform)
 	}
