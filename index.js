@@ -96,7 +96,8 @@ var ALIAS = {
 	float4:      'real',
 	float8:      'double_precision',
 	timestamptz: 'timestamp',
-	timetz:      'time'
+	timetz:      'time',
+	bpchar:      'char'
 }
 
 function platformValidators(platform) {
