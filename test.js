@@ -479,6 +479,100 @@ describe('pg-validate', function() {
 		})
 	})
 
+	describe('Date type', function () {
+		it('isValidValue() returns true for valid values', function () {
+			var t = new types.Date(true)
+			expect(t.isValidValue('1999-01-08')).to.be.true
+			expect(t.isValidValue('1999-Jan-08')).to.be.true
+			expect(t.isValidValue('08-Jan-1999')).to.be.true
+			expect(t.isValidValue('January 8, 1999')).to.be.true
+			expect(t.isValidValue('19990108')).to.be.true
+			expect(t.isValidValue('990108')).to.be.true
+			expect(t.isValidValue('1999.008')).to.be.true
+		})
+
+		it('isValidValue() returns false for invalid values', function () {
+			var t = new types.Date(false)
+			expect(t.isValidValue('1999-01')).to.be.false
+		})
+	})
+
+	describe('Time(tz) type', function () {
+		it('isValidValue() returns false for invalid values', function () {
+			var t = new types.Time(false)
+			expect(t.isValidValue('1999-01')).to.be.false
+		})
+
+		// TODO: some of these formats are DST sensitive
+		describeWithDatabase('timetz accepts multiple formats', function() {
+			var validator = validatorFor({type: 'timetz'})
+			var formats = {
+				'HH:mm:ss.SSS'   : ['04:05:06.778', '04:05:06.778', true],
+				'HH:mm:ss'       : ['04:05:06', '04:05:06', true],
+				"HH:mm"          : ['04:05', '04:05:00', true],
+				"HHmmss"         : ['040506', '04:05:06', true],
+				"hh:mm A"        : ['04:05 PM', '16:05:00', true],
+				"HH:mm:ss.SSSZ"  : ['04:05:06.789-8', '04:05:06.789-08'],
+				"HH:mm:ssZZ"     : ['04:05:06-08:00', '04:05:06-08'],
+				"HH:mmZZ"        : ['04:05-08:00', '04:05:00-08'],
+				"HHmmssZ"        : ['040506-08', '04:05:06-08'],
+				'HH:mm:ss tz'    : ['04:05:06 PST', '04:05:06-08'],
+				'YYYY-MM-DD HH:mm:ss tz'
+												 : ['2003-04-12 04:05:06 America/New_York', '04:05:06-04']
+			}
+
+			Object.keys(formats).forEach(function(fmt){
+				var a = formats[fmt], input = a[0], output = a[1] || a[0]
+
+				it('accepts '+fmt, function(done) {
+					expect(validator.isValidValue(input)).to.be.true
+
+					testType('timetz', input, function(err, val) {
+						expect(err).to.be.null
+						expect(strip(val)).to.equal(output)
+						done()
+					})
+				})
+
+				function strip(v) {
+					// strip local timezone from postgres output
+					return a[2] ? v.slice(0,-3) : v
+				}
+			})
+		})
+
+		describeWithDatabase('time accepts multiple formats', function() {
+			var validator = validatorFor({type: 'time'})
+			var formats = {
+				'HH:mm:ss.SSS'   : ['04:05:06.778'],
+				'HH:mm:ss'       : ['04:05:06'],
+				"HH:mm"          : ['04:05', '04:05:00'],
+				"HHmmss"         : ['040506', '04:05:06'],
+				"hh:mm A"        : ['04:05 PM', '16:05:00'],
+
+				// Timezones are ignored for the time type
+				"HH:mm:ss.SSSZ"  : ['04:05:06.789-8', '04:05:06.789'],
+				"HH:mm:ssZZ"     : ['04:05:06-08:00', '04:05:06'],
+				"HH:mmZZ"        : ['04:05-08:00', '04:05:00'],
+				"HHmmssZ"        : ['040506-08', '04:05:06']
+			}
+
+			Object.keys(formats).forEach(function(fmt){
+				var a = formats[fmt], input = a[0], output = a[1] || a[0]
+
+				it('accepts '+fmt, function(done) {
+					expect(validator.isValidValue(input)).to.be.true
+
+					testType('time', input, function(err, val) {
+						expect(err).to.be.null
+						expect(val).to.equal(output)
+						done()
+					})
+				})
+			})
+		})
+	})
+
 	describe('validate object', function () {
 		it('returns an array with validation errors if it finds any', function () {
 			var errors = validate.object({

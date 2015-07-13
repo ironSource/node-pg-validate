@@ -1,6 +1,9 @@
 exports.Boolean = require('./Boolean')
 exports.Integer = require('./Integer')
 exports.Char = require('./Char')
+exports.Timestamp = require('./Timestamp')
+exports.Time = require('./Time')
+exports.Date = require('./Date')
 
 exports.postgres = {
 	Decimal: require('./postgres/Decimal'),

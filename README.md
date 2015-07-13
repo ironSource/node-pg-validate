@@ -43,6 +43,23 @@ var errors = validate.object({
 
 ### DateTime
 
+- `timestamp[ (p) ]` or `timestamptz [ (p) ]`
+- `date`
+- `time [ (p) ]` or `timetz [ (p) ]`
+
+For the purposes of validation, there's no difference between `time` and `timetz`, or `timestamp` and `timestamptz`. This is because PostgreSQL silently ignores time zones for types without a time zone.
+
+**Not currently supported:**
+
+- Julian Day ("J2451187"), BC/AC dates, or ambiguous dates in a [DateStyle](http://www.postgresql.org/docs/9.1/static/runtime-config-client.html#GUC-DATESTYLE) mode
+- Time values with a precision greater than 3
+- Formats other than ISO 8601 for timestamps
+- Dates outside the range of `moment.js` and `Date`
+- The `interval [ fields ] [ (p) ]` type
+- Redshift only supports `date` and `timestamp`, without time zones. This is not yet enforced.
+- Custom configured timezone [names](http://www.postgresql.org/docs/9.1/static/view-pg-timezone-names.html) or [abbreviations](http://www.postgresql.org/docs/9.4/static/view-pg-timezone-abbrevs.html). In the future, the list of supported timezone values could be dynamically generated, via `SELECT row_to_json(pg_timezone_abbrevs) FROM pg_timezone_abbrevs` and the same for `pg_timezone_names`. For those timezones that are DST sensitive (`is_dst: true`), we should validate that values have a date.
+- POSIX-style time zone specifications
+
 ## Test
 
 Requires a PostgreSQL instance. Create a dummy user and database (nothing is written by the tests) and specify the credentials in the `PG_VALIDATE` environment variable:

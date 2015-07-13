@@ -75,23 +75,28 @@ function validatorFor (fieldMetadata, platform) {
 */
 var staticValidators = {}
 var platformAgnostic = {
-	boolean:   new types.Boolean(),
-	char:      types.Char,
-	int2:      new types.Integer('16bit'),
-	int4:      new types.Integer('32bit'),
-	int8:      new types.Integer('64bit'),
-	serial:    new types.Integer('serial'),
-	bigserial: new types.Integer('bigserial')
+	boolean:     new types.Boolean(),
+	char:        types.Char,
+	int2:        new types.Integer('16bit'),
+	int4:        new types.Integer('32bit'),
+	int8:        new types.Integer('64bit'),
+	serial:      new types.Integer('serial'),
+	bigserial:   new types.Integer('bigserial'),
+	timestamp:   new types.Timestamp(),
+	date:        new types.Date(),
+	time:        new types.Time()
 }
 
 var ALIAS = {
-	smallint: 'int2',
-	integer:  'int4',
-	bigint:   'int8',
-	varchar:  'char',
-	numeric:  'decimal',
-	float4:   'real',
-	float8:   'double_precision',
+	smallint:    'int2',
+	integer:     'int4',
+	bigint:      'int8',
+	varchar:     'char',
+	numeric:     'decimal',
+	float4:      'real',
+	float8:      'double_precision',
+	timestamptz: 'timestamp',
+	timetz:      'time'
 }
 
 function platformValidators(platform) {
