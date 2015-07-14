@@ -100,7 +100,8 @@ var platformAgnostic = {
 	int4:        new types.Integer('32bit'),
 	int8:        new types.Integer('64bit'),
 	serial:      new types.Integer('serial'),
-	bigserial:   new types.Integer('bigserial')
+	bigserial:   new types.Integer('bigserial'),
+  interval:    new types.Interval
 }
 
 var ALIAS = {

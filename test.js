@@ -651,6 +651,29 @@ describe('pg-validate', function() {
 		})
 	})
 
+	describe('Interval type', function () {
+		it('isValidValue() returns true for valid values', function () {
+			var c = new types.Interval()
+			expect(c.isValidValue('1')).to.be.true
+			expect(c.isValidValue('1 year')).to.be.true
+			expect(c.isValidValue('1-2')).to.be.true
+			expect(c.isValidValue('3 4:05:06')).to.be.true
+			expect(c.isValidValue('1 year 2 months 3 days 4 hours 5 minutes 6 seconds')).to.be.true
+			expect(c.isValidValue('1 year 2 months 1 day')).to.be.true
+			expect(c.isValidValue('1.5 year 1 day')).to.be.true
+			expect(c.isValidValue('P1Y2M3DT4H5M6S')).to.be.true
+			expect(c.isValidValue('P0001-02-03T04:05:06')).to.be.true
+		})
+
+		it('isValidValue() returns false for invalid values', function () {
+			var c = new types.Interval()
+			expect(c.isValidValue('aa')).to.be.false
+			expect(c.isValidValue('P1Y2M3DT4H5MXS')).to.be.false
+			expect(c.isValidValue('1.5 year 1 doy')).to.be.false
+			expect(c.isValidValue([])).to.be.false
+		})
+	})
+
 	describe('validate object', function () {
 		it('returns an array with validation errors if it finds any', function () {
 			var errors = validate.object({
