@@ -492,12 +492,16 @@ describe('pg-validate', function() {
 
 		it('is a type on PostgreSQL', function(){
 			var rv = validatorFor({type: 'text'}, validate.POSTGRES)
+			var rv2 = validate.pg.validatorFor({type: 'text'})
 			expect(rv).to.be.an.instanceof(types.postgres.Text)
+			expect(rv2).to.be.an.instanceof(types.postgres.Text)
 		})
 
 		it('is an alias of varchar on Redshift', function(){
 			var rv = validatorFor({type: 'text', length: 1}, validate.REDSHIFT)
+			var rv2 = validate.redshift.validatorFor({type: 'text', length: 1})
 			expect(rv).to.be.an.instanceof(types.Char)
+			expect(rv2).to.be.an.instanceof(types.Char)
 		})
 	})
 

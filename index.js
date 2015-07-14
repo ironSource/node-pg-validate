@@ -16,6 +16,25 @@ Object.keys(PLATFORM).forEach(function(k){
 	exports[k] = PLATFORM[k]
 })
 
+// Shortcuts
+exports.redshift = {
+	object: function(obj, metadata) {
+		return exports.object(obj, metadata, { platform: PLATFORM.REDSHIFT })
+	},
+	validatorFor: function(fieldMetadata) {
+		return validatorFor(fieldMetadata, PLATFORM.REDSHIFT)
+	}
+}
+
+exports.pg = {
+	object: function(obj, metadata) {
+		return exports.object(obj, metadata, { platform: PLATFORM.POSTGRES })
+	},
+	validatorFor: function(fieldMetadata) {
+		return validatorFor(fieldMetadata, PLATFORM.POSTGRES)
+	}
+}
+
 exports.object = function (obj, metadata, opts) {
 	var errors = []
 	var platform = opts && opts.platform

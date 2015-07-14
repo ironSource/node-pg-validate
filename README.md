@@ -3,13 +3,26 @@ Given table
 [foo smallint]
 [bar varchar(10)]
 
-```
+```js
 var metadata = ... // use pg-metadata module
 var validate = require('pg-validate')
 
+// Validate for PostgreSQL
+var errors = validate.pg.object({
+    foo: 1280000,
+    bar: 'aaaaaa'
+}, metadata)
+
+// Validate for Redshift
+var errors = validate.redshift.object({
+    foo: 1280000,
+    bar: 'aaaaaa'
+}, metadata)
+
+// Or the verbose way
 var errors = validate.object({
     foo: 1280000,
-    bar: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+    bar: 'aaaaaa'
 }, metadata, { platform: validate.REDSHIFT })
 ```
 
