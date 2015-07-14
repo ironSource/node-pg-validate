@@ -5,8 +5,7 @@ var inherits = require('util').inherits
 module.exports = PGDate
 inherits(PGDate, SqlType)
 
-const dateFormats = [
-	moment.ISO_8601,
+const dateFormats = PGDate.FORMATS = [
 	"MMMM D, YYYY",
 	"YYYYMMDD",
 	"YYYY-MM-DD",
@@ -22,6 +21,7 @@ function PGDate() {
 }
 
 PGDate.prototype.isValidValue = function(value) {
+	if (typeof value !== 'string') return false
 	var m = moment(value, dateFormats, true) // strict
 	return m.isValid()
 }

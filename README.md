@@ -54,7 +54,6 @@ For the purposes of validation, there's no difference between `time` and `timetz
 
 - Julian Day ("J2451187"), BC/AC dates, or ambiguous dates in a [DateStyle](http://www.postgresql.org/docs/9.1/static/runtime-config-client.html#GUC-DATESTYLE) mode
 - Time values with a precision greater than 3
-- Formats other than ISO 8601 for timestamps
 - Dates outside the range of `moment.js` and `Date`
 - The `interval [ fields ] [ (p) ]` type
 - Redshift only supports `date` and `timestamp`, without time zones. This is not yet enforced.

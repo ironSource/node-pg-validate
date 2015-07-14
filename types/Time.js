@@ -6,7 +6,7 @@ module.exports = Time
 inherits(Time, SqlType)
 
 // Formats that moment.js can parse
-const timeFormats = [
+const timeFormats = Time.FORMATS = [
 	"HH:mm:ss.SSS",   // 04:05:06.789  ISO 8601
 	"HH:mm:ss",       // 04:05:06  ISO 8601
 	"HH:mm",          // 04:05 ISO 8601

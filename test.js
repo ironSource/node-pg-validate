@@ -503,7 +503,7 @@ describe('pg-validate', function() {
 
 	describe('Date type', function () {
 		it('isValidValue() returns true for valid values', function () {
-			var t = new types.Date(true)
+			var t = new types.Date()
 			expect(t.isValidValue('1999-01-08')).to.be.true
 			expect(t.isValidValue('1999-Jan-08')).to.be.true
 			expect(t.isValidValue('08-Jan-1999')).to.be.true
@@ -514,15 +514,37 @@ describe('pg-validate', function() {
 		})
 
 		it('isValidValue() returns false for invalid values', function () {
-			var t = new types.Date(false)
+			var t = new types.Date()
 			expect(t.isValidValue('1999-01')).to.be.false
+		})
+	})
+
+	describe('Timestamp type', function () {
+		it('isValidValue() returns true for valid values', function () {
+			var t = new types.Timestamp()
+			expect(t.isValidValue('1999-01-08 04:05:06.778')).to.be.true
+			expect(t.isValidValue('1999-Jan-08 04:05:06')).to.be.true
+			expect(t.isValidValue('08-Jan-1999 04:05 PM')).to.be.true
+			expect(t.isValidValue('January 8, 1999 04:05 PM')).to.be.true
+			expect(t.isValidValue('19990108 04:05:06-07:00')).to.be.true
+			expect(t.isValidValue('990108 04:05:06')).to.be.true
+			expect(t.isValidValue('1999.008 04:05:06')).to.be.true
+
+			// TODO: timezones with DST (validate with date)
+		})
+
+		it('isValidValue() returns false for invalid values', function () {
+			var t = new types.Timestamp()
+			expect(t.isValidValue('1999-01')).to.be.false
+			expect(t.isValidValue(true)).to.be.false
 		})
 	})
 
 	describe('Time(tz) type', function () {
 		it('isValidValue() returns false for invalid values', function () {
-			var t = new types.Time(false)
+			var t = new types.Time()
 			expect(t.isValidValue('1999-01')).to.be.false
+			expect(t.isValidValue(2)).to.be.false
 		})
 
 		// TODO: some of these formats are DST sensitive
