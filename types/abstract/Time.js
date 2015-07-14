@@ -31,11 +31,11 @@ function Time() {
 	this.FORMATS = FORMATS
 }
 
-Time.prototype.isValidValue = function(value) {
+Time.prototype.isValidValue = function(value, _formats) {
 	if (typeof value !== 'string') return false
 	if (this.SPECIALS.indexOf(value) >= 0) return true
 
-	var match;
+	var match, formats = _formats || this.FORMATS;
 
 	if (/(\-|\+)(\d{1,3})$/.test(value)) {
 		// Support 04:05:06.789-8 and 040506-08 and ..-800
@@ -55,12 +55,12 @@ Time.prototype.isValidValue = function(value) {
 
 			// In case the time zone involves a daylight-savings rule (and
 			// the time must include a date), let momentjs handle that for now.
-			var tm = moment.tz(value, this.FORMATS, name)
+			var tm = moment.tz(value, formats, name)
 			return tm.isValid()
 		}
 	}
 
-	var m = moment(value, this.FORMATS, true) // strict
+	var m = moment(value, formats, true) // strict
 	return m.isValid()
 }
 

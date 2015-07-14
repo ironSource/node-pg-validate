@@ -555,6 +555,11 @@ describe('pg-validate', function() {
 			})
 		})
 
+		it('PostgreSQL accepts January 8 04:05:06 1999 PST', function(){
+			var t = new types.postgres.Timestamp()
+			expect(t.isValidValue('January 8 04:05:06 1999 PST')).to.be.true
+		})
+
 		it('isValidValue() returns false for invalid values', function () {
 			var t = new types.postgres.Timestamp()
 			expect(t.isValidValue('1999-01')).to.be.false
