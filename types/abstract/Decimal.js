@@ -1,7 +1,7 @@
-var SqlType = require('../lib/SqlType')
+var SqlType = require('../../lib/SqlType')
 var inherits = require('util').inherits
 var BigNumber = require('bignumber.js').another({ ERRORS: false })
-var Integer = require('./Integer')
+var Integer = require('../Integer')
 
 module.exports = Decimal
 inherits(Decimal, SqlType)

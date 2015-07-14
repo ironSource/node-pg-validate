@@ -1,4 +1,4 @@
-var Decimal = require('../Decimal')
+var Decimal = require('../abstract/Decimal')
 var inherits = require('util').inherits
 
 function RSDecimal(precision, scale, range) {

@@ -189,64 +189,64 @@ describe('pg-validate', function() {
 	describe('Decimal type', function () {
 		it('throws exception in constructor when using invalid precision', function () {
 			expect(function () {
-				new types.Decimal(0)
+				new types.postgres.Decimal(0)
 			}).to.throw(Error, 'precision must be positive')
 
 			expect(function () {
-				new types.Decimal(9999999)
+				new types.postgres.Decimal(9999999)
 			}).to.throw(Error, 'precision exceeds maximum of ')
 		})
 
 		it('throws exception in constructor when using invalid scale', function () {
 			expect(function () {
-				new types.Decimal(2, 3)
+				new types.postgres.Decimal(2, 3)
 			}).to.throw(Error, 'scale must be less than or equal to precision')
 
 			expect(function () {
-				new types.Decimal(2, -1)
+				new types.postgres.Decimal(2, -1)
 			}).to.throw(Error, 'scale must be zero or positive')
 
 			expect(function () {
-				new types.Decimal(131072, 16384)
+				new types.postgres.Decimal(131072, 16384)
 			}).to.throw(Error, 'scale exceeds maximum of ')
 		})
 
 		it('throws exception in constructor when scale is given without precision', function() {
 			expect(function () {
-				new types.Decimal(null, 3)
+				new types.postgres.Decimal(null, 3)
 			}).to.throw(Error, 'cannot declare scale without precision')
 		})
 
 		it('defaults to a scale of 0 when given a precision', function() {
-			var d = new types.Decimal(2)
+			var d = new types.postgres.Decimal(2)
 			expect(d._scale).to.equal(0)
 		})
 
 		it('uses default values when given no precision', function() {
-			var d = new types.Decimal()
+			var d = new types.postgres.Decimal()
 			expect(d._precision).to.equal(d.DEFAULT_PRECISION)
 			expect(d._scale).to.equal(d.DEFAULT_SCALE)
 
-			var d2 = new types.Decimal(null, null)
+			var d2 = new types.postgres.Decimal(null, null)
 			expect(d2._precision).to.equal(d.DEFAULT_PRECISION)
 			expect(d2._scale).to.equal(d2.DEFAULT_SCALE)
 		})
 
 		describe('isValidValue() returns true for valid values', function () {
 			it('coerces scale', function() {
-				var d = new types.Decimal(4, 2)
+				var d = new types.postgres.Decimal(4, 2)
 				expect(d.isValidValue(123)).to.be.true
 				expect(d.isValidValue(12.345)).to.be.true
 				expect(d.isValidValue('123')).to.be.true
 				expect(d.isValidValue('12.345')).to.be.true
 
-				var d2 = new types.Decimal(3, 2)
+				var d2 = new types.postgres.Decimal(3, 2)
 				expect(d2.isValidValue(1.234)).to.be.true
 				expect(d2.isValidValue('1.234')).to.be.true
 			})
 
 			it('with defaults', function() {
-				var d = new types.Decimal()
+				var d = new types.postgres.Decimal()
 				expect(d.isValidValue(123456)).to.be.true
 				expect(d.isValidValue(12.3456)).to.be.true
 				expect(d.isValidValue('123456')).to.be.true
@@ -254,25 +254,25 @@ describe('pg-validate', function() {
 			})
 
 			it('negative number', function(){
-				var d = new types.Decimal(2)
+				var d = new types.postgres.Decimal(2)
 				expect(d.isValidValue(-12)).to.be.true
 				expect(d.isValidValue(-1.1)).to.be.true
 			})
 
 			it('with positive sign', function() {
-				var d = new types.Decimal(2)
+				var d = new types.postgres.Decimal(2)
 				expect(d.isValidValue('+12')).to.be.true
 				expect(d.isValidValue('+1.1')).to.be.true
 			})
 
 			it('with negative sign', function() {
-				var d = new types.Decimal(2)
+				var d = new types.postgres.Decimal(2)
 				expect(d.isValidValue('-12')).to.be.true
 				expect(d.isValidValue('-1.1')).to.be.true
 			})
 
 			it('with implicit scale of 0', function() {
-				var d = new types.Decimal(1)
+				var d = new types.postgres.Decimal(1)
 				expect(d.isValidValue(1)).to.be.true
 				expect(d.isValidValue(1.1)).to.be.true
 				expect(d.isValidValue('1')).to.be.true
@@ -280,7 +280,7 @@ describe('pg-validate', function() {
 			})
 
 			it('with explicit scale of 0', function() {
-				var d = new types.Decimal(1, 0)
+				var d = new types.postgres.Decimal(1, 0)
 				expect(d.isValidValue(1)).to.be.true
 				expect(d.isValidValue(1.1)).to.be.true
 				expect(d.isValidValue('1')).to.be.true
@@ -289,7 +289,7 @@ describe('pg-validate', function() {
 		})
 
 		describe('isValidValue() returns false for invalid values', function () {
-			var d = new types.Decimal(4, 2)
+			var d = new types.postgres.Decimal(4, 2)
 
 			it('type', function() {
 				expect(d.isValidValue([])).to.be.false
@@ -310,19 +310,19 @@ describe('pg-validate', function() {
 				expect(d.isValidValue(12345)).to.be.false
 				expect(d.isValidValue('12345')).to.be.false
 
-				var d2 = new types.Decimal(3, 2)
+				var d2 = new types.postgres.Decimal(3, 2)
 				expect(d2.isValidValue(12.345)).to.be.false
 				expect(d2.isValidValue('12.345')).to.be.false
 			})
 
 			it('negative number', function() {
-				var d = new types.Decimal(2, 2)
+				var d = new types.postgres.Decimal(2, 2)
 				expect(d.isValidValue(-123)).to.be.false
 				expect(d.isValidValue(-1.12)).to.be.false
 			})
 
 			it('with negative sign', function() {
-				var d = new types.Decimal(2, 2)
+				var d = new types.postgres.Decimal(2, 2)
 				expect(d.isValidValue('-123')).to.be.false
 				expect(d.isValidValue('-1.12')).to.be.false
 			})
@@ -344,7 +344,7 @@ describe('pg-validate', function() {
 					, invalidNeg = invalid.times(-1)
 					, expectedNeg = expected.times(-1)
 					, type = args ? 'numeric('+args.join(',')+')' : 'numeric'
-					, d = new types.Decimal(args[0], args[1])
+					, d = new types.postgres.Decimal(args[0], args[1])
 
 				describe(type, function() {
 					it("matches the database's precision (positive)", function(done) {

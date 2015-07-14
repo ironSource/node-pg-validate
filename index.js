@@ -122,28 +122,24 @@ function platformValidators(platform) {
 	var validators = staticValidators[platform] = _.assign({}, platformAgnostic)
 
 	if (platform === PLATFORM.POSTGRES) {
-		var Decimal = validators.decimal = types.postgres.Decimal
-
-		validators.text = types.postgres.Text
-		validators.date = new types.postgres.Date
-		validators.time = new types.postgres.Time
-		validators.timestamp = new types.postgres.Timestamp()
+		var platformTypes = types.postgres
 	} else if (platform === PLATFORM.REDSHIFT) {
-		Decimal = validators.decimal = types.redshift.Decimal
-
-		validators.text = types.Char
-		validators.date = new types.redshift.Date
-		validators.time = new types.redshift.Time
-		validators.timestamp = new types.redshift.Timestamp()
+		platformTypes = types.redshift
 	} else {
 		throw new Error('Invalid platform: ' + platform)
 	}
 
+	validators.decimal = platformTypes.Decimal
+	validators.text = platformTypes.Text
+	validators.date = new platformTypes.Date
+	validators.time = new platformTypes.Time
+	validators.timestamp = new platformTypes.Timestamp
+
 	// Inexact. Maximum precision is advisory and *at least* 6.
-	validators.real = new Decimal(null, null, '128bit')
+	validators.real = new platformTypes.Decimal(null, null, '128bit')
 
 	// Inexact. Maximum precision is advisory and *at least* 15.
-	validators.double_precision = new Decimal(null, null, '1024bit')
+	validators.double_precision = new platformTypes.Decimal(null, null, '1024bit')
 
 	if (platform === PLATFORM.POSTGRES) {
 		validators.float = types.postgres.Float.factory(validators)

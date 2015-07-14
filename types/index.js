@@ -13,9 +13,8 @@ exports.postgres = {
 
 exports.redshift = {
 	Decimal: require('./redshift/Decimal'),
+	Text: exports.Char,
 	Date: require('./redshift/Date'),
 	Time: require('./redshift/Time'),
 	Timestamp: require('./redshift/Timestamp')
 }
-
-exports.Decimal = exports.postgres.Decimal
