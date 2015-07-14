@@ -26,6 +26,10 @@ Timestamp.prototype.isValidValue = function(value) {
 
 		if (moment(subvalue, formats, true).isValid()) {
 			var remainder = value.slice(subvalue.length).trim()
+
+			// Date without time is valid.
+			if (!remainder.length) return true
+
 			if (this._time.isValidValue(remainder)) return true
 		}
 	}

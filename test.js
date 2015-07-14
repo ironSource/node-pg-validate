@@ -505,16 +505,22 @@ describe('pg-validate', function() {
 		})
 	})
 
+	var dates = [
+		'1999-01-08',
+		'1999-Jan-08',
+		'08-Jan-1999',
+		'January 8, 1999',
+		'19990108',
+		'990108',
+		'1999.008'
+	]
+
 	describe('Date type', function () {
 		it('isValidValue() returns true for valid values', function () {
 			var t = new types.Date()
-			expect(t.isValidValue('1999-01-08')).to.be.true
-			expect(t.isValidValue('1999-Jan-08')).to.be.true
-			expect(t.isValidValue('08-Jan-1999')).to.be.true
-			expect(t.isValidValue('January 8, 1999')).to.be.true
-			expect(t.isValidValue('19990108')).to.be.true
-			expect(t.isValidValue('990108')).to.be.true
-			expect(t.isValidValue('1999.008')).to.be.true
+			dates.forEach(function(date) {
+				expect(t.isValidValue(date)).to.be.true
+			})
 		})
 
 		it('isValidValue() returns false for invalid values', function () {
@@ -535,6 +541,13 @@ describe('pg-validate', function() {
 			expect(t.isValidValue('1999.008 04:05:06')).to.be.true
 
 			// TODO: timezones with DST (validate with date)
+		})
+
+		it('accepts dates without a time', function(){
+			var t = new types.Timestamp()
+			dates.forEach(function(date) {
+				expect(t.isValidValue(date)).to.be.true
+			})
 		})
 
 		it('isValidValue() returns false for invalid values', function () {
