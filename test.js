@@ -512,26 +512,31 @@ describe('pg-validate', function() {
 		'January 8, 1999',
 		'19990108',
 		'990108',
-		'1999.008'
-	]
+		'1999.008',
+		'Jan-08-1999'
+	].concat(types.postgres.Date().SPECIALS)
 
-	describe('Date type', function () {
-		it('isValidValue() returns true for valid values', function () {
-			var t = new types.Date()
-			dates.forEach(function(date) {
+	describeWithDatabase('Date type', function () {
+		var t = new types.postgres.Date()
+		dates.forEach(function(date) {
+			it('accepts '+date, function(done){
 				expect(t.isValidValue(date)).to.be.true
+				testType('date', date, function(err, val) {
+					expect(err).to.be.null
+					done()
+				})
 			})
 		})
 
 		it('isValidValue() returns false for invalid values', function () {
-			var t = new types.Date()
+			var t = new types.postgres.Date()
 			expect(t.isValidValue('1999-01')).to.be.false
 		})
 	})
 
 	describe('Timestamp type', function () {
 		it('isValidValue() returns true for valid values', function () {
-			var t = new types.Timestamp()
+			var t = new types.postgres.Timestamp()
 			expect(t.isValidValue('1999-01-08 04:05:06.778')).to.be.true
 			expect(t.isValidValue('1999-Jan-08 04:05:06')).to.be.true
 			expect(t.isValidValue('08-Jan-1999 04:05 PM')).to.be.true
@@ -544,14 +549,14 @@ describe('pg-validate', function() {
 		})
 
 		it('accepts dates without a time', function(){
-			var t = new types.Timestamp()
+			var t = new types.postgres.Timestamp()
 			dates.forEach(function(date) {
 				expect(t.isValidValue(date)).to.be.true
 			})
 		})
 
 		it('isValidValue() returns false for invalid values', function () {
-			var t = new types.Timestamp()
+			var t = new types.postgres.Timestamp()
 			expect(t.isValidValue('1999-01')).to.be.false
 			expect(t.isValidValue(true)).to.be.false
 		})
@@ -559,9 +564,16 @@ describe('pg-validate', function() {
 
 	describe('Time(tz) type', function () {
 		it('isValidValue() returns false for invalid values', function () {
-			var t = new types.Time()
+			var t = new types.postgres.Time()
 			expect(t.isValidValue('1999-01')).to.be.false
 			expect(t.isValidValue(2)).to.be.false
+		})
+
+		it('accepts special values', function() {
+			var t = new types.postgres.Time()
+			t.SPECIALS.forEach(function(special){
+				expect(t.isValidValue(special)).to.be.true
+			})
 		})
 
 		// TODO: some of these formats are DST sensitive

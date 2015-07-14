@@ -100,10 +100,7 @@ var platformAgnostic = {
 	int4:        new types.Integer('32bit'),
 	int8:        new types.Integer('64bit'),
 	serial:      new types.Integer('serial'),
-	bigserial:   new types.Integer('bigserial'),
-	timestamp:   new types.Timestamp(),
-	date:        new types.Date(),
-	time:        new types.Time()
+	bigserial:   new types.Integer('bigserial')
 }
 
 var ALIAS = {
@@ -126,10 +123,18 @@ function platformValidators(platform) {
 
 	if (platform === PLATFORM.POSTGRES) {
 		var Decimal = validators.decimal = types.postgres.Decimal
+
 		validators.text = types.postgres.Text
+		validators.date = new types.postgres.Date
+		validators.time = new types.postgres.Time
+		validators.timestamp = new types.postgres.Timestamp()
 	} else if (platform === PLATFORM.REDSHIFT) {
 		Decimal = validators.decimal = types.redshift.Decimal
+
 		validators.text = types.Char
+		validators.date = new types.redshift.Date
+		validators.time = new types.redshift.Time
+		validators.timestamp = new types.redshift.Timestamp()
 	} else {
 		throw new Error('Invalid platform: ' + platform)
 	}

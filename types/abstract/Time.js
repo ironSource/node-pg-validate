@@ -1,12 +1,12 @@
 var moment = require('moment-timezone');
-var SqlType = require('../lib/SqlType')
+var SqlType = require('../../lib/SqlType')
 var inherits = require('util').inherits
 
 module.exports = Time
 inherits(Time, SqlType)
 
 // Formats that moment.js can parse
-const timeFormats = Time.FORMATS = [
+const FORMATS = [
 	"HH:mm:ss.SSS",   // 04:05:06.789  ISO 8601
 	"HH:mm:ss",       // 04:05:06  ISO 8601
 	"HH:mm",          // 04:05 ISO 8601
@@ -16,16 +16,24 @@ const timeFormats = Time.FORMATS = [
 	"HH:mmZZ",        // 04:05-08:00 ISO 8601
 ]
 
+const SPECIALS = [
+	'now'
+]
+
 const tzRe = / [\w\/]{3,}$/
 const dstTimeFormat = 'YYYY-MM-DD'
 
 function Time() {
 	if ( !(this instanceof Time) ) return new Time()
 	SqlType.call(this)
+
+	this.SPECIALS = SPECIALS
+	this.FORMATS = FORMATS
 }
 
 Time.prototype.isValidValue = function(value) {
 	if (typeof value !== 'string') return false
+	if (this.SPECIALS.indexOf(value) >= 0) return true
 
 	var match;
 
@@ -47,12 +55,12 @@ Time.prototype.isValidValue = function(value) {
 
 			// In case the time zone involves a daylight-savings rule (and
 			// the time must include a date), let momentjs handle that for now.
-			var tm = moment.tz(value, timeFormats, name)
+			var tm = moment.tz(value, this.FORMATS, name)
 			return tm.isValid()
 		}
 	}
 
-	var m = moment(value, timeFormats, true) // strict
+	var m = moment(value, this.FORMATS, true) // strict
 	return m.isValid()
 }
 

@@ -1,18 +1,21 @@
 exports.Boolean = require('./Boolean')
 exports.Integer = require('./Integer')
 exports.Char = require('./Char')
-exports.Timestamp = require('./Timestamp')
-exports.Time = require('./Time')
-exports.Date = require('./Date')
 
 exports.postgres = {
 	Decimal: require('./postgres/Decimal'),
 	Float: require('./postgres/Float'),
-	Text: require('./postgres/Text')
+	Text: require('./postgres/Text'),
+	Date: require('./postgres/Date'),
+	Time: require('./postgres/Time'),
+	Timestamp: require('./postgres/Timestamp')
 }
 
 exports.redshift = {
 	Decimal: require('./redshift/Decimal'),
+	Date: require('./redshift/Date'),
+	Time: require('./redshift/Time'),
+	Timestamp: require('./redshift/Timestamp')
 }
 
 exports.Decimal = exports.postgres.Decimal
