@@ -5,7 +5,7 @@ module.exports = Char
 
 inherits(Char, SqlType)
 function Char(length) {
-	if ( !(this instanceof Char) ) return new Char()
+	if ( !(this instanceof Char) ) return new Char(length)
 	SqlType.call(this)
 
 	if (typeof (length) !== 'number') {
