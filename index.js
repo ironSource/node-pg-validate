@@ -137,10 +137,12 @@ function platformValidators(platform) {
 	validators.timestamp = new platformTypes.Timestamp
 
 	// Inexact. Maximum precision is advisory and *at least* 6.
-	validators.real = new platformTypes.Decimal(null, null, '128bit')
+	// Using the PostgreSQL type for Redshift too, because Redshift's
+	// limits on decimal precision shouldn't be applied to inexact types.
+	validators.real = new types.postgres.Decimal(null, null, '128bit')
 
 	// Inexact. Maximum precision is advisory and *at least* 15.
-	validators.double_precision = new platformTypes.Decimal(null, null, '1024bit')
+	validators.double_precision = new types.postgres.Decimal(null, null, '1024bit')
 
 	if (platform === PLATFORM.POSTGRES) {
 		validators.float = types.postgres.Float.factory(validators)

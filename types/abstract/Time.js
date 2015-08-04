@@ -48,8 +48,10 @@ Time.prototype.isValidValue = function(value, _formats) {
 		value = value.slice(0, match.index)
 
 		if (abbr) {
-			value = value + abbr.utc_offset.slice(0,-3)
-		} else {
+			var offset = abbr.utc_offset.slice(0,-3)
+			if (offset[0] !== '-') offset = '+' + offset
+			value = value + offset
+		} else if (this.supportsNamedTimezones()) {
 			var zone = moment.tz.zone(name)
 			if (zone == null) return false
 
@@ -62,6 +64,10 @@ Time.prototype.isValidValue = function(value, _formats) {
 
 	var m = moment(value, formats, true) // strict
 	return m.isValid()
+}
+
+Time.prototype.supportsNamedTimezones = function() {
+	throw new Error('must implement')
 }
 
 // Default list of abbreviations.

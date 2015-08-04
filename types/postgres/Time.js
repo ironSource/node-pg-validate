@@ -12,3 +12,7 @@ function PGTime() {
     'allballs'
   ])
 }
+
+PGTime.prototype.supportsNamedTimezones = function() {
+  return true
+}

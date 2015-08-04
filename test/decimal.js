@@ -1,12 +1,11 @@
 var expect = require('chai').expect
 var types = require('../types')
 var validate = require('../')
-var validatorFor = validate.validatorFor
 var BigNumber = require('bignumber.js').another({ ERRORS: false })
 
-var util = require('./util')
-var testType = util.testType
-var describeWithDatabase = util.describeWithDatabase
+var suite = require('./suite')
+var testType = suite.testType
+var describeWithDatabase = suite.describeWithDatabase
 
 function inexact(val, digits) {
 	var b = new BigNumber(val)
@@ -171,7 +170,7 @@ describe('Decimal type', function () {
 				, invalidNeg = invalid.times(-1)
 				, expectedNeg = expected.times(-1)
 				, type = args ? 'numeric('+args.join(',')+')' : 'numeric'
-				, d = new types.postgres.Decimal(args[0], args[1])
+				, d = new suite.types.Decimal(args[0], args[1])
 
 			describe(type, function() {
 				it("matches the database's precision (positive)", function(done) {
@@ -215,7 +214,7 @@ describe('Decimal type', function () {
 })
 
 describeWithDatabase('Real type', function() {
-	var validator = validatorFor({type: 'float4'})
+	var validator = suite.validatorFor({type: 'float4'})
 	var range = types.Integer.RANGE['128bit']
 
 	it('accepts numbers up to 128bit with a precision of at least 6', function(done) {
@@ -231,7 +230,7 @@ describeWithDatabase('Real type', function() {
 })
 
 describeWithDatabase('float(1) type', function() {
-	var validator = validatorFor({type: 'float4'})
+	var validator = suite.validatorFor({type: 'float4'})
 	var range = types.Integer.RANGE['128bit']
 
 	it('accepts numbers up to 128bit with a precision of at least 6', function(done) {
@@ -247,7 +246,7 @@ describeWithDatabase('float(1) type', function() {
 })
 
 describeWithDatabase('Double precision type', function() {
-	var validator = validatorFor({type: 'float8'})
+	var validator = suite.validatorFor({type: 'float8'})
 	var range = types.Integer.RANGE['1024bit']
 
 	it('accepts numbers up to 1024bit with a precision of at least 15', function(done) {
@@ -265,7 +264,7 @@ describeWithDatabase('Double precision type', function() {
 })
 
 describeWithDatabase('float(53) type', function() {
-	var validator = validatorFor({type: 'float8'})
+	var validator = suite.validatorFor({type: 'float8'})
 	var range = types.Integer.RANGE['1024bit']
 
 	it('accepts numbers up to 1024bit with a precision of at least 15', function(done) {
