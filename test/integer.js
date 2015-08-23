@@ -2,9 +2,9 @@ var expect = require('chai').expect
 var types = require('../types')
 var BigNumber = require('bignumber.js').another({ ERRORS: false })
 
-var util = require('./util')
-var testType = util.testType
-var describeWithDatabase = util.describeWithDatabase
+var suite = require('./suite')
+var testType = suite.testType
+var describeWithDatabase = suite.describeWithDatabase
 
 describe('Integer type', function () {
 	it('throws exception in constructor when using invalid range', function () {
