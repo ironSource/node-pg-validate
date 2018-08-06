@@ -8,6 +8,18 @@ var client
 exports.types = types.postgres
 exports.validatorFor = validate.pg.validatorFor
 
+exports.testType = function(type, value, done) {
+	client.query('SELECT $1::'+type+' AS res', [value], function(err, result) {
+		if (err) return done(err)
+		else done(null, result.rows[0].res);
+	});
+}
+
+exports.describeWithDatabase = function(what, fn) {
+	if (client) describe(what, fn)
+	else describe.skip(what, fn)
+}
+
 if (dsn) {
 	pg.connect(dsn, function(err, cl) {
 		if (err) throw err
@@ -43,16 +55,4 @@ function run() {
 	mocha.run(function(){
 	  client && client.end()
 	})
-}
-
-exports.testType = function(type, value, done) {
-	client.query('SELECT $1::'+type+' AS res', [value], function(err, result) {
-		if (err) return done(err)
-		else done(null, result.rows[0].res);
-	});
-}
-
-exports.describeWithDatabase = function(what, fn) {
-	if (client) describe(what, fn)
-	else describe.skip(what, fn)
 }
