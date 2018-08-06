@@ -18,6 +18,7 @@ coverage
 
 # rc config files
 .*rc
+!.npmrc
 
 # see https://github.com/substack/browserify-handbook#organizing-modules
 node_modules/*
