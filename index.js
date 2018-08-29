@@ -132,9 +132,9 @@ function platformValidators(platform) {
 	}
 
 	validators.decimal = platformTypes.Decimal
-	validators.json = platformTypes.Json
+	validators.json = platformTypes.JSON
 	validators.text = platformTypes.Text
-	validators.uuid = platformTypes.Uuid
+	validators.uuid = platformTypes.UUID
 	validators.date = new platformTypes.Date
 	validators.time = new platformTypes.Time
 	validators.timestamp = new platformTypes.Timestamp

@@ -1,8 +1,8 @@
 var expect = require('chai').expect
 var types = require('../types')
 
-describe('Uuid type', function() {
-	var uuid = new types.postgres.Uuid()
+describe('UUID type', function() {
+	var uuid = new types.postgres.UUID()
 
 	it('isValidValue() returns true for valid values', function () {
 		expect(uuid.isValidValue('12345678-1234-1234-1234-123456789abC')).to.be.true

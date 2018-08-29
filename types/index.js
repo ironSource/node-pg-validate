@@ -6,12 +6,12 @@ exports.Interval = require('./Interval')
 exports.postgres = {
 	Decimal: require('./postgres/Decimal'),
 	Float: require('./postgres/Float'),
-	Json: require('./postgres/Json'),
+	JSON: require('./postgres/Json'),
 	Text: require('./postgres/Text'),
 	Date: require('./postgres/Date'),
 	Time: require('./postgres/Time'),
 	Timestamp: require('./postgres/Timestamp'),
-	Uuid: require('./postgres/Uuid')
+	UUID: require('./postgres/Uuid')
 }
 
 exports.redshift = {
