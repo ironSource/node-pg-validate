@@ -43,7 +43,7 @@ exports.object = function (obj, metadata, opts) {
 
 		var value = obj[field]
 
-		// we might miss zeros here, so 
+		// we might miss zeros here, so
 		if (value === undefined || value === null) {
 			if (fieldMetadata.required) {
 				errors.push({
@@ -56,7 +56,7 @@ exports.object = function (obj, metadata, opts) {
 		}
 
 		var validator = validatorFor(fieldMetadata, platform)
-		
+
 		if (!validator.isValidValue(value)) {
 			errors.push({
 				field: field,
@@ -114,7 +114,8 @@ var ALIAS = {
 	float8:      'double_precision',
 	timestamptz: 'timestamp',
 	timetz:      'time',
-	bpchar:      'char'
+	bpchar:      'char',
+	jsonb:       'json'
 }
 
 function platformValidators(platform) {
@@ -131,7 +132,9 @@ function platformValidators(platform) {
 	}
 
 	validators.decimal = platformTypes.Decimal
+	validators.json = platformTypes.Json
 	validators.text = platformTypes.Text
+	validators.uuid = platformTypes.Uuid
 	validators.date = new platformTypes.Date
 	validators.time = new platformTypes.Time
 	validators.timestamp = new platformTypes.Timestamp
