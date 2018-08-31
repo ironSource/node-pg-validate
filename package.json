@@ -9,7 +9,7 @@
   "dependencies": {
     "bignumber.js": "~2.0.7",
     "introspect": "0.0.3",
-    "lodash": "^3.9.3",
+    "lodash": "^4.17.10",
     "moment-timezone": "~0.4.0"
   },
   "author": "Yaniv Kessler",
