@@ -50,6 +50,8 @@ function run() {
 	mocha.addFile(__dirname + '/datetime.js')
 	mocha.addFile(__dirname + '/decimal.js')
 	mocha.addFile(__dirname + '/integer.js')
+	mocha.addFile(__dirname + '/json.js')
+	mocha.addFile(__dirname + '/uuid.js')
 	mocha.addFile(__dirname + '/validate.js')
 
 	mocha.run(function(){
